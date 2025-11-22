@@ -6,7 +6,7 @@
 #define MAX_COL 3
 
 // Assembly function prototype
-extern void compute_acc(double *data, int Y, int *results);
+extern void compute_acc(int Y, double *data, int *results);
 
 // Reference C function for correctness check
 double compute_acc_c(double vi, double vf, double t)
@@ -44,7 +44,7 @@ int main()
     }
 
     // Compute
-    compute_acc((double*) data, Y, results);
+    compute_acc(Y, (double*) data,  results);
 
     // Print results
     printf("Accelerations (m/s^2):\n");
@@ -86,7 +86,7 @@ int main()
             }
 
             clock_t start = clock();
-            compute_acc((double*) data, curr_Y, results);
+            compute_acc(curr_Y, (double*) data, results);
             clock_t end = clock();
             total_time += (double)(end - start) / CLOCKS_PER_SEC;
         }
