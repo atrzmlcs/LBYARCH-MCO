@@ -61,7 +61,14 @@ int main()
         {
             double acc_c = compute_acc_c(data[i][0], data[i][1], data[i][2]);
             int acc_int_c = (int)acc_c;
-            printf("Car %d: ASM=%d, C=%d (diff=%d)\n", i + 1, results[i], acc_int_c, abs(results[i] - acc_int_c));
+            //printf("Car %d: ASM=%d, C=%d (diff=%d)\n", i + 1, results[i], acc_int_c, abs(results[i] - acc_int_c));
+
+            printf("Car %d: Exact=%.6f, C_trunc=%d, ASM=%d\n", 
+                i + 1,
+                ((data[i][1] - data[i][0]) / 3.6) / data[i][2],
+                (int)(((data[i][1] - data[i][0]) / 3.6) / data[i][2]),
+                results[i]
+            );
         }
     }
 
