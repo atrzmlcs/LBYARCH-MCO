@@ -3,7 +3,7 @@
 #include <time.h>
 #include <math.h>
 
-const int MAX_COL = 3;
+#define MAX_COL 3
 
 // Assembly function prototype
 extern void compute_acc(double *data, int Y, int *results);
@@ -22,7 +22,7 @@ int main()
     scanf("%d", &Y);
 
     // Allocate memory
-    double *data = malloc(Y * MAX_COL * sizeof(double));
+    double (*data)[MAX_COL] = malloc(Y * sizeof(*data));
     int *results = malloc(Y * sizeof(int));
     if (!data || !results)
     {
@@ -34,17 +34,17 @@ int main()
     printf("Enter the matrix (Y rows of Vi,Vf,T without spaces, e.g., 0.0,62.5,10.1):\n");
     for (int i = 0; i < Y; i++)
     {
-        scanf("%lf,%lf,%lf", &data[i * MAX_COL], &data[i * MAX_COL + 1], &data[i * MAX_COL + 2]);
+        scanf("%lf,%lf,%lf", &data[i][0], &data[i][1], &data[i][2]);
     }
     // Debug: Print read data to verify
     printf("Read data:\n");
     for (int i = 0; i < Y; i++)
     {
-        printf("%.1f, %.1f, %.1f\n", data[i * MAX_COL], data[i * MAX_COL + 1], data[i * MAX_COL + 2]);
+        printf("%.1f, %.1f, %.1f\n", data[i][0], data[i][1], data[i][2]);
     }
 
     // Compute
-    compute_acc(data, Y, results);
+    compute_acc((double*) data, Y, results);
 
     // Print results
     printf("Accelerations (m/s^2):\n");
@@ -59,7 +59,7 @@ int main()
         printf("\nCorrectness check:\n");
         for (int i = 0; i < Y; i++)
         {
-            double acc_c = compute_acc_c(data[i * MAX_COL], data[i * MAX_COL + 1], data[i * MAX_COL + 2]);
+            double acc_c = compute_acc_c(data[i][0], data[i][1], data[i][2]);
             int acc_int_c = (int)acc_c;
             printf("Car %d: ASM=%d, C=%d (diff=%d)\n", i + 1, results[i], acc_int_c, abs(results[i] - acc_int_c));
         }
@@ -80,13 +80,13 @@ int main()
             // Generate random data
             for (int i = 0; i < curr_Y; i++)
             {
-                data[i * MAX_COL] = rand() % 201;                     // Vi: 0-200
-                data[i * MAX_COL + 1] = data[i * MAX_COL] + (rand() % 101); // Vf: Vi to Vi+100
-                data[i * MAX_COL + 2] = 1 + (rand() % 20);            // T: 1-20
+                data[i][0] = rand() % 201;                          // Vi: 0-200
+                data[i][1] = data[i][0] + (rand() % 101);    // Vf: Vi to Vi+100
+                data[i][2] = 1 + (rand() % 20);                     // T: 1-20
             }
 
             clock_t start = clock();
-            compute_acc(data, curr_Y, results);
+            compute_acc((double*) data, curr_Y, results);
             clock_t end = clock();
             total_time += (double)(end - start) / CLOCKS_PER_SEC;
         }
