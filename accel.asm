@@ -1,44 +1,51 @@
 default rel
 
 section .data
-    ; No constant here
+    CONVERSION_VAL dq 3.6
 
 section .text
-    global compute_acc
+bits 64
+default rel
+global compute_acc
+
+; RCX - Size of Y
+; RDX - Address of 2D Array matrix
+; R8  - Address of 1D Array Result
+; Note: Do not use XMM0 - XMM3
+; Formula: A = (Vf - Vi) / T
+; In matrix: Vi = [0] Vf = [1] T = [2]
 
 compute_acc:
-    push rbp
-    mov rbp, rsp
+    MOV R9, RCX
+    MOV RCX, 0
+    MOVSD XMM7, [CONVERSION_VAL]
 
-    xor r9, r9
+; Loop from last to first
+LOOP_MATRIX:
+    ;MOV R9, [RCX * ROW_SIZE] ;Current row offset
+    CMP RCX, R9 ; i < Y
+    JZ END_LOOP
+    
+    ; 24 - Size per row
+    ; 8  - Size per element
+    MOV R10, RCX
+    IMUL R10, 24
+    LEA R11, [RDX + R10]
+    
+    MOVSD XMM4, [R11 + 0] ; Vi
+    MOVSD XMM5, [R11 + 8] ; Vf
+    MOVSD XMM6, [R11 + 16] ; T
+    
+    SUBSD XMM5, XMM4 ; (Vf - Vi)
+    DIVSD XMM5, XMM7 ; Convert KM/H to m/s
+    DIVSD XMM5, XMM6 ; / T
+    CVTSD2SI R13, XMM5 ; A in int
+    
+    ; 4 - Size of int
+    MOV [R8 + RCX * 4], R13D
+    
+    INC RCX
+    JMP LOOP_MATRIX
 
-.loop:
-    cmp r9, rdx
-    jge .end
-
-    lea r10, [r9 + r9*2]
-    lea r10, [r10*8]
-
-    movsd xmm0, [rcx + r10]
-    movsd xmm1, [rcx + r10 + 8]
-    movsd xmm2, [rcx + r10 + 16]
-
-    subsd xmm1, xmm0
-
-    ; Load 3.6 as double (alternative method)
-    mov rax, 0x400ccccccccccccd
-    movq xmm3, rax
-    divsd xmm1, xmm3
-
-    divsd xmm1, xmm2
-
-    cvtsd2si eax, xmm1
-
-    mov [r8 + r9*4], eax
-
-    inc r9
-    jmp .loop
-
-.end:
-    pop rbp
-    ret
+END_LOOP:
+    RET
