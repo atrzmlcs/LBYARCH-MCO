@@ -21,7 +21,7 @@ int main()
     printf("Enter number of cars (Y): ");
     scanf("%d", &Y);
 
-    // Allocate memory
+    // Allocate memory (for initial manual Y)
     double (*data)[MAX_COL] = malloc(Y * sizeof(*data));
     int *results = malloc(Y * sizeof(int));
     if (!data || !results)
@@ -73,6 +73,10 @@ int main()
         }
     }
 
+    // Free initial allocations (we'll reallocate for timing)
+    free(data);
+    free(results);
+
     // Timing runs (with random data)
     int test_Ys[] = {10, 100, 1000, 10000};
     int num_tests = sizeof(test_Ys) / sizeof(test_Ys[0]);
@@ -81,9 +85,25 @@ int main()
     for (int t = 0; t < num_tests; t++)
     {
         int curr_Y = test_Ys[t];
+        printf("Starting allocation and trials for Y=%d\n", curr_Y);
+        fflush(stdout);
+
+        // Allocate memory for current Y (to avoid buffer overflow)
+        double (*data)[MAX_COL] = malloc(curr_Y * sizeof(*data));
+        int *results = malloc(curr_Y * sizeof(int));
+        if (!data || !results)
+        {
+            printf("Memory allocation failed for Y=%d\n", curr_Y);
+            fflush(stdout);
+            return 1;
+        }
+        printf("Allocation successful for Y=%d\n", curr_Y);
+        fflush(stdout);
+
         double total_time = 0.0;
 
-        for (int trial = 0; trial < 30; trial++)
+     
+        for (int trial = 0; trial < 30; trial++) 
         {
             // Generate random data
             for (int i = 0; i < curr_Y; i++)
@@ -99,11 +119,19 @@ int main()
             total_time += (double)(end - start) / CLOCKS_PER_SEC;
         }
 
+        // printf("Trials completed for Y=%d\n", curr_Y);
+        // fflush(stdout);
+
+      
         double avg_time = total_time / 30.0;
         printf("Y=%d: Average time = %.6f seconds\n", curr_Y, avg_time);
+        fflush(stdout);
+
+        // Free for this Y
+        free(data);
+        free(results);
     }
 
-    free(data);
-    free(results);
     return 0;
 }
+
