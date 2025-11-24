@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <math.h>
-#include <accel.c>
+#include "accel.c"
 
 #define MAX_COL 3
 
@@ -96,7 +96,7 @@ int main()
             {
                 testData[i][0] = rand() % 20100 / 100;                          // Vi: 0-200
                 testData[i][1] = testData[i][0] + ((rand() % 10100) / 100);     // Vf: Vi to Vi+100
-                testData[i][2] = max(0.01, (rand() % 2000 / 100));              // T: 0.1-20
+                testData[i][2] = fmax(0.01, (rand() % 2000 / 100));              // T: 0.1-20
             }
 
             clock_t start = clock();
