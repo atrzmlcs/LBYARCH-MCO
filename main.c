@@ -94,9 +94,9 @@ int main()
             // Generate random data
             for (int i = 0; i < curY; i++)
             {
-                testData[i][0] = rand() % 201;                          // Vi: 0-200
-                testData[i][1] = testData[i][0] + (rand() % 101);    // Vf: Vi to Vi+100
-                testData[i][2] = 1 + (rand() % 20);                     // T: 1-20
+                testData[i][0] = rand() % 20100 / 100;                          // Vi: 0-200
+                testData[i][1] = testData[i][0] + ((rand() % 10100) / 100);     // Vf: Vi to Vi+100
+                testData[i][2] = max(0.01, (rand() % 2000 / 100));              // T: 0.1-20
             }
 
             clock_t start = clock();
