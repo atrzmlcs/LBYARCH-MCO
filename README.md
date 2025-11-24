@@ -15,3 +15,5 @@ Even with optimizations, C includes overhead that assembly skips.
 
 
 ## Short Video
+Alternative Link: [https://youtu.be/MeYHJO3H8rE](https://youtu.be/MeYHJO3H8rE)
+<iframe width="560" height="315" src="https://www.youtube.com/embed/MeYHJO3H8rE" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
