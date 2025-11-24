@@ -12,6 +12,19 @@ double compute_acc_c(double vi, double vf, double t)
     return ((vf - vi) / 3.6) / t;
 }
 
+double compute_acc_c_full(int Y, double data[][3], int results[])
+{
+    int i;
+    for (i = 0; i < Y; i++) {
+        //results[i] = compute_acc_c(data[i][], data[i][1], data[i][2]);
+        double vi   = data[i][0];
+        double vf   = data[i][1];
+        double t    = data[i][2];
+
+        results[i] = round( (vf - vi) / 3.6 / t );
+    }
+}
+
 int main()
 {
     
@@ -21,6 +34,7 @@ int main()
 
     double (*data)[MAX_COL] = malloc(Y * sizeof(*data));
     int *results = malloc(Y * sizeof(int));
+    int *results2 = malloc(Y * sizeof(int));
 
     printf("Enter the matrix (Y rows of Vi,Vf,T without spaces, e.g., 0.0,62.5,10.1):\n");
     for (int i = 0; i < Y; i++)
@@ -53,18 +67,19 @@ int main()
     if (Y <= 10)
     {
         printf("\nCorrectness check:\n");
+        compute_acc_c_full(Y, data, results2);
+
         for (int i = 0; i < Y; i++)
         {
             double acc_c = compute_acc_c(data[i][0], data[i][1], data[i][2]);
-            int acc_int_c = (int)round(acc_c);
             //printf("Car %d: ASM=%d, C=%d (diff=%d)\n", i + 1, results[i], acc_int_c, abs(results[i] - acc_int_c));
 
             printf("Car %d: Exact=%f, ASM=%d C=%d (diff=%d), \n", 
                 i + 1,
                 acc_c,
                 results[i],
-                acc_int_c,
-                abs(results[i] - acc_int_c)
+                results2[i],
+                abs(results[i] - results2[i])
             );
         }
     }
@@ -73,15 +88,20 @@ int main()
     free(results);
 
 
-    printf("\nGetting Average Time Per Y (30 Trials):\n");
+    printf("\nGetting Time Per Y (30 Trials):\n");
     int test_Ys[] = {10, 100, 1000, 10000};
     int nTests = 4;
     srand(time(NULL));
 
+    double overallTotalC = 0.0;
+    double overallTotalAsm = 0.0;
     for (int t = 0; t < nTests; t++)
     {
         int curY = test_Ys[t];
-        double total_time = 0.0;
+        double totalTimeC = 0.0;
+        double totalTimeAsm = 0.0;
+
+        printf("Testing Y= %d...\n", curY);
 
         double (*testData)[MAX_COL] = malloc(curY * sizeof(*testData));
         int *testResults = malloc(curY * sizeof(int));
@@ -99,16 +119,30 @@ int main()
             clock_t start = clock();
             compute_acc(curY, (double*) testData, testResults);
             clock_t end = clock();
-            total_time += (double)(end - start) / CLOCKS_PER_SEC;
+            totalTimeAsm += (double)(end - start); // / CLOCKS_PER_SEC;
+
+            start = clock();
+            compute_acc_c_full(curY, testData, testResults);
+            end = clock();
+            totalTimeC += (double)(end - start); // / CLOCKS_PER_SEC;
         }
 
-        double avg_time = total_time / 30.0;
-        printf("Y=%d:, Total Time: %f, Average time = %f seconds\n", curY, total_time, avg_time);
+        //double avg_time = total_time / 30.0;
+        //printf("Y=%d:, Total Time: %f, Average time = %f seconds\n", curY, total_time, avg_time);
+        printf("Y=%d: Total Time(Asm): %f seconds, Total Time(C): %f seconds\n", curY, totalTimeAsm / CLOCKS_PER_SEC, totalTimeC / CLOCKS_PER_SEC);
+
+        overallTotalAsm += totalTimeAsm;
+        overallTotalC += totalTimeC;
 
         free(testData);
         free(testResults);
     }
 
+    printf("\nFinal Timing Result:\n");
+    overallTotalAsm /= CLOCKS_PER_SEC;
+    overallTotalC /= CLOCKS_PER_SEC;
+    printf("Asm: Overall Total Time: %f, Average Time: %f\n", overallTotalAsm, overallTotalAsm / (4 * 30));
+    printf("C:   Overall Total Time: %f, Average Time: %f\n", overallTotalC, overallTotalC / (4 * 30));
     
     return 0;
 }
