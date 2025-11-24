@@ -7,6 +7,6 @@ MALICSI, ATREUZ PATRICK<br>
 <img width="1137" height="405" alt="image" src="https://github.com/user-attachments/assets/a6658792-0e8e-4647-87e7-cdacd026c260" />
 
 # Correctness check
-![Uploading image.png…]()
+<img width="809" height="163" alt="image" src="https://github.com/user-attachments/assets/1d57cbc5-8483-4f31-9e3d-d03586475dac" />
 
 # Short Video
